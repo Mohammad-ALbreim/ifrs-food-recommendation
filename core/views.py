@@ -140,7 +140,12 @@ def meal_add(request):
 
 
 def meal_edit(request, meal_id):
+    if 'restaurant_id' not in request.session:
+        return redirect('restaurant_login')
+
     meal = Meal.objects.get(id=meal_id)
+    if meal.restaurant_id != request.session['restaurant_id']:
+        return redirect('meals_list')
 
     if request.method == "POST":
         form = MealForm(request.POST, request.FILES, instance=meal)
@@ -157,7 +162,11 @@ def meal_delete(request, meal_id):
     if 'restaurant_id' not in request.session:
         return redirect('restaurant_login')
 
-    Meal.objects.get(id=meal_id).delete()
+    meal = Meal.objects.get(id=meal_id)
+    if meal.restaurant_id != request.session['restaurant_id']:
+        return redirect('meals_list')
+
+    meal.delete()
     return redirect('meals_list')
 
 
