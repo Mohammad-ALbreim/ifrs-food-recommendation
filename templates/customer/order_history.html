@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Intelligent Food Recommendation App - Order Confirmed</title>
+    <title>Intelligent Food Recommendation App - Order History</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -126,31 +126,22 @@
 
     <!-- Page Title -->
     <div class="container mt-4">
-        <h3 class="text-center mb-4">Order Confirmed ✅</h3>
+        <h3 class="text-center mb-4">Order History 📋</h3>
 
-        <p class="text-center text-muted">
-            Order #{{ order.id }} from <strong>{{ order.restaurant.name }}</strong>
-            — {{ order.get_order_type_display }}, {{ order.get_status_display }}
-        </p>
-
-        {% for item in items %}
+        {% if orders %}
+        {% for order in orders %}
         <div class="meal-card">
-            <div class="meal-title">{{ item.meal_name }}</div>
-            <p><span class="meal-label">Quantity:</span> {{ item.quantity }}</p>
-            <p><span class="meal-label">Unit Price:</span> {{ item.unit_price }} JD</p>
-            <p><span class="meal-label">Line Total:</span> {{ item.line_total }} JD</p>
+            <div class="meal-title">Order #{{ order.id }} — {{ order.restaurant.name }}</div>
+            <p><span class="meal-label">Status:</span> {{ order.get_status_display }}</p>
+            <p><span class="meal-label">Total:</span> {{ order.total_amount }} JD</p>
+            <p><span class="meal-label">Placed:</span> {{ order.created_at }}</p>
+
+            <a href="{% url 'customer_order_detail' order.id %}" class="btn btn-success">View Details</a>
         </div>
         {% endfor %}
-
-        <div class="meal-card text-center">
-            <div class="meal-title">Total: {{ order.total_amount }} JD</div>
-            <p class="text-muted mb-0">Payment: {{ order.get_payment_method_display }} ({{ order.get_payment_status_display }})</p>
-        </div>
-
-        <div class="text-center mt-4 mb-5">
-            <a href="/customer/" class="btn btn-success px-4 py-2">Back to Home</a>
-            <a href="/customer/orders/" class="btn btn-success px-4 py-2">View Order History</a>
-        </div>
+        {% else %}
+        <p class="text-center text-muted">You haven't placed any orders yet.</p>
+        {% endif %}
     </div>
 
 </body>

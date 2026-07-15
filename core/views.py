@@ -509,6 +509,36 @@ def order_confirm(request, order_id):
     })
 
 
+def order_history(request):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    orders = Order.objects.filter(customer=customer).order_by('-created_at')
+
+    return render(request, "customer/order_history.html", {
+        "orders": orders,
+    })
+
+
+def customer_order_detail(request, order_id):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    order = Order.objects.get(id=order_id)
+
+    if order.customer_id != customer.id:
+        return redirect("order_history")
+
+    items = order.items.all()
+
+    return render(request, "customer/order_detail.html", {
+        "order": order,
+        "items": items,
+    })
+
+
 
 # ===============================================================
 #               NUTRITION FILTERING & SCORING

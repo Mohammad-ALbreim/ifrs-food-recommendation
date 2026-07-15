@@ -35,6 +35,8 @@ urlpatterns = [
     path('customer/cart/remove/<int:item_id>/', views.cart_remove_item, name='cart_remove_item'),
     path('customer/checkout/', views.checkout, name='checkout'),
     path('customer/order/confirm/<int:order_id>/', views.order_confirm, name='order_confirm'),
+    path('customer/orders/', views.order_history, name='order_history'),
+    path('customer/orders/<int:order_id>/', views.customer_order_detail, name='customer_order_detail'),
     path('customer/quiz/', views.customer_quiz, name='customer_quiz'),
     path('customer/quiz/result/', views.customer_quiz_result, name='customer_quiz_result'),
 
