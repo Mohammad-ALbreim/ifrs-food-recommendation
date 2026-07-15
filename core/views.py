@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
+from django_ratelimit.decorators import ratelimit
 
 from .models import Customer, Restaurant, Meal
 from .forms import MealForm
@@ -64,6 +65,7 @@ def run_r_mood_analysis(answers):
 # ===============================================================
 #                   RESTAURANT AUTH & DASHBOARD
 # ===============================================================
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def restaurant_login(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -247,6 +249,7 @@ def customer_signup(request):
     return render(request, "customer/signup.html")
 
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def customer_login(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -367,6 +370,7 @@ def customer_quiz(request):
     return render(request, "customer/quiz.html")
 
 
+@ratelimit(key='ip', rate='10/m', block=True)
 def customer_quiz_result(request):
     if "customer_email" not in request.session:
         return redirect("customer_login")
@@ -443,6 +447,7 @@ Allergens: {meal.allergens}
 # ===============================================================
 #                   NUTRITION CHAT (RAG)
 # ===============================================================
+@ratelimit(key='ip', rate='20/m', method='POST', block=True)
 def nutrition_chat(request):
     if request.method == "POST":
         user_message = request.POST.get("message", "")
