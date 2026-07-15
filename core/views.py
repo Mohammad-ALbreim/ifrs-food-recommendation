@@ -202,6 +202,55 @@ def restaurant_profile(request):
 
 
 # ===============================================================
+#                   RESTAURANT ORDER MANAGEMENT
+# ===============================================================
+def order_list(request):
+    if 'restaurant_id' not in request.session:
+        return redirect('restaurant_login')
+
+    restaurant = Restaurant.objects.get(id=request.session['restaurant_id'])
+    orders = Order.objects.filter(restaurant=restaurant).order_by('-created_at')
+
+    return render(request, 'restaurant/order_list.html', {
+        'orders': orders,
+    })
+
+
+def order_detail(request, order_id):
+    if 'restaurant_id' not in request.session:
+        return redirect('restaurant_login')
+
+    order = Order.objects.get(id=order_id)
+    if order.restaurant_id != request.session['restaurant_id']:
+        return redirect('order_list')
+
+    items = order.items.all()
+
+    return render(request, 'restaurant/order_detail.html', {
+        'order': order,
+        'items': items,
+    })
+
+
+def order_status_update(request, order_id):
+    if 'restaurant_id' not in request.session:
+        return redirect('restaurant_login')
+
+    order = Order.objects.get(id=order_id)
+    if order.restaurant_id != request.session['restaurant_id']:
+        return redirect('order_list')
+
+    if request.method == "POST":
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            messages.success(request, "Order status updated.")
+
+    return redirect('order_detail', order_id=order_id)
+
+
+# ===============================================================
 #                   CUSTOMER AUTH
 # ===============================================================
 def customer_signup(request):

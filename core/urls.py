@@ -18,6 +18,9 @@ urlpatterns = [
     path('restaurant/meals/edit/<int:meal_id>/', views.meal_edit, name='meal_edit'),
     path('restaurant/meals/delete/<int:meal_id>/', views.meal_delete, name='meal_delete'),
     path('restaurant/profile/', views.restaurant_profile, name='restaurant_profile'),
+    path('restaurant/orders/', views.order_list, name='order_list'),
+    path('restaurant/orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('restaurant/orders/<int:order_id>/status/', views.order_status_update, name='order_status_update'),
 
     # Customer
     path('customer/signup/', views.customer_signup, name='customer_signup'),
