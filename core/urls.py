@@ -28,6 +28,8 @@ urlpatterns = [
     path('customer/meals/<int:rest_id>/', views.customer_meals, name='customer_meals'),
     path('customer/cart/add/<int:meal_id>/', views.cart_add, name='cart_add'),
     path('customer/cart/', views.cart_view, name='cart_view'),
+    path('customer/cart/update/<int:item_id>/', views.cart_update_item, name='cart_update_item'),
+    path('customer/cart/remove/<int:item_id>/', views.cart_remove_item, name='cart_remove_item'),
     path('customer/quiz/', views.customer_quiz, name='customer_quiz'),
     path('customer/quiz/result/', views.customer_quiz_result, name='customer_quiz_result'),
 

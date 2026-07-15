@@ -344,6 +344,53 @@ def cart_view(request):
     })
 
 
+def cart_update_item(request, item_id):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    if request.method != "POST":
+        return redirect("cart_view")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    item = CartItem.objects.get(id=item_id)
+
+    if item.cart.customer_id != customer.id:
+        return redirect("cart_view")
+
+    try:
+        quantity = int(request.POST.get("quantity", 0))
+    except (TypeError, ValueError):
+        quantity = 0
+
+    if quantity <= 0:
+        item.delete()
+        messages.success(request, "Item removed from cart.")
+    else:
+        item.quantity = quantity
+        item.save()
+        messages.success(request, "Cart updated.")
+
+    return redirect("cart_view")
+
+
+def cart_remove_item(request, item_id):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    if request.method != "POST":
+        return redirect("cart_view")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    item = CartItem.objects.get(id=item_id)
+
+    if item.cart.customer_id != customer.id:
+        return redirect("cart_view")
+
+    item.delete()
+    messages.success(request, "Item removed from cart.")
+    return redirect("cart_view")
+
+
 
 
 # ===============================================================

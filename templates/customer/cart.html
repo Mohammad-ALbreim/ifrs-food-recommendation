@@ -142,6 +142,17 @@
             <p><span class="meal-label">Quantity:</span> {{ item.quantity }}</p>
             <p><span class="meal-label">Unit Price:</span> {{ item.unit_price_snapshot }} JD</p>
             <p><span class="meal-label">Line Total:</span> {{ item.line_total }} JD</p>
+
+            <form method="POST" action="{% url 'cart_update_item' item.id %}" class="d-flex align-items-center gap-2 mt-2">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control" style="width: 80px;">
+                <button type="submit" class="btn btn-success">Update</button>
+            </form>
+
+            <form method="POST" action="{% url 'cart_remove_item' item.id %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
         </div>
         {% endfor %}
 
