@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Intelligent Food Recommendation App - Meals - {{ restaurant.name }}</title>
+    <title>Intelligent Food Recommendation App - My Cart</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -104,8 +104,7 @@
     <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
       <a onclick="closeMenu()" style="text-align:right; font-size:22px;">✖ Close</a>
-		
-	
+
 	  <a href="/customer/">🏠 Home</a>
         <a href="/customer/restaurants/">🍽 Restaurants</a>
         <a href="/customer/cart/">🛒 Cart</a>
@@ -119,7 +118,6 @@
 
         <center>
             <a class="navbar-brand d-flex align-items-center" href="#">
-               
                 <h6 class="ms-2 fw-bold text-white">Intelligent Food Recommendation App</h6>
             </a>
         </center>
@@ -127,7 +125,7 @@
 
     <!-- Page Title -->
     <div class="container mt-4">
-        <h3 class="text-center mb-4">Meals in {{ restaurant.name }} 🍽</h3>
+        <h3 class="text-center mb-4">My Cart 🛒</h3>
 
         {% if messages %}
             {% for message in messages %}
@@ -135,40 +133,24 @@
             {% endfor %}
         {% endif %}
 
-        {% for m in meals %}
+        {% if cart and items %}
+        <p class="text-center text-muted">Ordering from <strong>{{ cart.restaurant.name }}</strong></p>
+
+        {% for item in items %}
         <div class="meal-card">
-            <div class="meal-title">
-			
-			
-			
-			{% if m.image %}
-    <img src="{{ m.image.url }}" class="img-fluid mb-2" style="height:200px; object-fit:cover;">
-{% else %}
-    <img src="{% static 'img/no-image.png' %}" class="img-fluid mb-2" style="height:200px; object-fit:cover;">
-{% endif %}
-			
-			
-			</div>
-            <div class="meal-title">{{ m.name }}</div>
-            <p class="text-muted">{{ m.description }}</p>
-
-            <p><span class="meal-label">Calories:</span> {{ m.calories }}</p>
-            <p><span class="meal-label">Protein:</span> {{ m.protein }} g</p>
-            <p><span class="meal-label">Carbs:</span> {{ m.carbs }} g</p>
-            <p><span class="meal-label">Fat:</span> {{ m.fat }} g</p>
-
-            {% if m.allergens %}
-            <p class="text-danger"><strong>Allergens:</strong> {{ m.allergens }}</p>
-            {% endif %}
-
-            <form method="POST" action="{% url 'cart_add' m.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success">Add to Cart</button>
-            </form>
+            <div class="meal-title">{{ item.meal.name }}</div>
+            <p><span class="meal-label">Quantity:</span> {{ item.quantity }}</p>
+            <p><span class="meal-label">Unit Price:</span> {{ item.unit_price_snapshot }} JD</p>
+            <p><span class="meal-label">Line Total:</span> {{ item.line_total }} JD</p>
         </div>
-        {% empty %}
-        <p class="text-center text-muted">No meals available.</p>
         {% endfor %}
+
+        <div class="meal-card text-center">
+            <div class="meal-title">Subtotal: {{ subtotal }} JD</div>
+        </div>
+        {% else %}
+        <p class="text-center text-muted">Your cart is empty.</p>
+        {% endif %}
     </div>
 
 </body>

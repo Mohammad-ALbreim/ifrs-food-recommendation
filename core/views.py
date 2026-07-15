@@ -4,9 +4,10 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 from django_ratelimit.decorators import ratelimit
 
-from .models import Customer, Restaurant, Meal
+from .models import Customer, Restaurant, Meal, Cart, CartItem
 from .forms import MealForm
 
+from decimal import Decimal
 import numpy as np
 import faiss
 from openai import OpenAI
@@ -285,6 +286,61 @@ def customer_meals(request, rest_id):
     return render(request, "customer/meals.html", {
         "restaurant": restaurant,
         "meals": meals
+    })
+
+
+# ===============================================================
+#                   CART
+# ===============================================================
+def cart_add(request, meal_id):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    if request.method != "POST":
+        return redirect("customer_home")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    meal = Meal.objects.get(id=meal_id)
+
+    cart, _ = Cart.objects.get_or_create(customer=customer)
+
+    if cart.restaurant_id and cart.restaurant_id != meal.restaurant_id:
+        messages.error(
+            request,
+            f"Your cart already has items from {cart.restaurant.name}. "
+            f"Finish or clear that order before adding meals from a different restaurant."
+        )
+        return redirect("customer_meals", rest_id=meal.restaurant_id)
+
+    if cart.restaurant_id is None:
+        cart.restaurant = meal.restaurant
+        cart.save()
+
+    item, created = CartItem.objects.get_or_create(
+        cart=cart, meal=meal,
+        defaults={"quantity": 1, "unit_price_snapshot": meal.price}
+    )
+    if not created:
+        item.quantity += 1
+        item.save()
+
+    messages.success(request, f"{meal.name} added to cart.")
+    return redirect("cart_view")
+
+
+def cart_view(request):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    cart = Cart.objects.filter(customer=customer).first()
+    items = cart.items.select_related("meal").all() if cart else []
+    subtotal = sum((item.line_total for item in items), Decimal("0.00"))
+
+    return render(request, "customer/cart.html", {
+        "cart": cart,
+        "items": items,
+        "subtotal": subtotal,
     })
 
 

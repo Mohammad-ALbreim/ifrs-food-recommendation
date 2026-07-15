@@ -93,3 +93,38 @@ class Meal(models.Model):
     class Meta:
         verbose_name = "Meal"
         verbose_name_plural = "Meals"
+
+
+# -------------------------------
+# CART MODEL
+# -------------------------------
+class Cart(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Cart #{self.id} ({self.customer.name})"
+
+    class Meta:
+        verbose_name = "Cart"
+        verbose_name_plural = "Carts"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    meal = models.ForeignKey(Meal, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price_snapshot = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.meal.name}"
+
+    @property
+    def line_total(self):
+        return self.quantity * self.unit_price_snapshot
+
+    class Meta:
+        verbose_name = "Cart Item"
+        verbose_name_plural = "Cart Items"
