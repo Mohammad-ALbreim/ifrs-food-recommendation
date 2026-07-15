@@ -19,8 +19,8 @@ def rag_search_query(q):
     """
     Lazy import for FAISS on run Django
     """
-    from rag_query import search
     try:
+        from rag_query import search
         return search(q)
     except Exception:
         return "AI explanation is temporarily unavailable. Please try again later."
