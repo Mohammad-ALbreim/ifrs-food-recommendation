@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
 
 from .models import Customer, Restaurant, Meal
 from .forms import MealForm
@@ -69,11 +70,15 @@ def restaurant_login(request):
         password = request.POST.get("password")
 
         try:
-            restaurant = Restaurant.objects.get(email=email, password=password)
-            request.session['restaurant_id'] = restaurant.id
-            return redirect('restaurant_dashboard')
+            restaurant = Restaurant.objects.get(email=email)
         except Restaurant.DoesNotExist:
             return render(request, "restaurant/login.html", {"error": "Invalid email or password"})
+
+        if check_password(password, restaurant.password):
+            request.session['restaurant_id'] = restaurant.id
+            return redirect('restaurant_dashboard')
+
+        return render(request, "restaurant/login.html", {"error": "Invalid email or password"})
 
     return render(request, "restaurant/login.html")
 
@@ -189,7 +194,7 @@ def customer_signup(request):
         Customer.objects.create(
             name=request.POST.get("name"),
             email=email,
-            password=request.POST.get("password"),
+            password=make_password(request.POST.get("password")),
             gender=request.POST.get("gender"),
             age=to_number(request.POST.get("age")),
             weight=to_number(request.POST.get("weight")),
@@ -214,12 +219,15 @@ def customer_login(request):
         password = request.POST.get("password")
 
         try:
-            customer = Customer.objects.get(email=email, password=password)
+            customer = Customer.objects.get(email=email)
+        except Customer.DoesNotExist:
+            return render(request, "customer/login.html", {"error": "Invalid email or password"})
+
+        if check_password(password, customer.password):
             request.session["customer_email"] = customer.email
             return redirect("customer_home")
 
-        except Customer.DoesNotExist:
-            return render(request, "customer/login.html", {"error": "Invalid email or password"})
+        return render(request, "customer/login.html", {"error": "Invalid email or password"})
 
     return render(request, "customer/login.html")
 
