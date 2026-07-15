@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 from django_ratelimit.decorators import ratelimit
 
-from .models import Customer, Restaurant, Meal, Cart, CartItem
+from .models import Customer, Restaurant, Meal, Cart, CartItem, Order, OrderItem
 from .forms import MealForm
 
 from decimal import Decimal
@@ -390,6 +390,74 @@ def cart_remove_item(request, item_id):
     messages.success(request, "Item removed from cart.")
     return redirect("cart_view")
 
+
+# ===============================================================
+#                   CHECKOUT
+# ===============================================================
+def checkout(request):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    cart = Cart.objects.filter(customer=customer).first()
+
+    if not cart or not cart.items.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect("cart_view")
+
+    items = cart.items.select_related("meal").all()
+    subtotal = sum((item.line_total for item in items), Decimal("0.00"))
+
+    if request.method == "POST":
+        order_type = request.POST.get("order_type")
+        if order_type not in dict(Order.TYPE_CHOICES):
+            order_type = "pickup"
+
+        order = Order.objects.create(
+            customer=customer,
+            restaurant=cart.restaurant,
+            order_type=order_type,
+            total_amount=subtotal,
+        )
+
+        for item in items:
+            OrderItem.objects.create(
+                order=order,
+                meal=item.meal,
+                meal_name=item.meal.name,
+                unit_price=item.unit_price_snapshot,
+                quantity=item.quantity,
+            )
+
+        cart.items.all().delete()
+        cart.restaurant = None
+        cart.save()
+
+        return redirect("order_confirm", order_id=order.id)
+
+    return render(request, "customer/checkout.html", {
+        "cart": cart,
+        "items": items,
+        "subtotal": subtotal,
+    })
+
+
+def order_confirm(request, order_id):
+    if "customer_email" not in request.session:
+        return redirect("customer_login")
+
+    customer = Customer.objects.get(email=request.session["customer_email"])
+    order = Order.objects.get(id=order_id)
+
+    if order.customer_id != customer.id:
+        return redirect("customer_home")
+
+    items = order.items.all()
+
+    return render(request, "customer/order_confirm.html", {
+        "order": order,
+        "items": items,
+    })
 
 
 

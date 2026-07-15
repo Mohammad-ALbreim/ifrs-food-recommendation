@@ -128,3 +128,71 @@ class CartItem(models.Model):
     class Meta:
         verbose_name = "Cart Item"
         verbose_name_plural = "Cart Items"
+
+
+# -------------------------------
+# ORDER MODEL
+# -------------------------------
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('preparing', 'Preparing'),
+        ('ready', 'Ready'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    TYPE_CHOICES = [
+        ('pickup', 'Pickup'),
+        ('delivery', 'Delivery'),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    order_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='pickup')
+
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cod')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order #{self.id} ({self.customer.name})"
+
+    class Meta:
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    meal = models.ForeignKey(Meal, on_delete=models.SET_NULL, null=True, blank=True)
+    meal_name = models.CharField(max_length=255)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.meal_name}"
+
+    @property
+    def line_total(self):
+        return self.quantity * self.unit_price
+
+    class Meta:
+        verbose_name = "Order Item"
+        verbose_name_plural = "Order Items"
