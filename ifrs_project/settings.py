@@ -10,9 +10,9 @@ SECRET_KEY = env("SECRET_KEY")
 
 OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
 
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 
 INSTALLED_APPS = [
