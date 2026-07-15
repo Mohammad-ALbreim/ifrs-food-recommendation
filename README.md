@@ -49,7 +49,6 @@ ifrs_project/
 
 - Python 3.10+
 - MySQL Server
-- R (with the `jsonlite` package) — needed for the mood quiz
 - An OpenAI API key — needed for the RAG explanations and chat
 
 ### 1. Clone and create a virtual environment
@@ -71,11 +70,7 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 3. Configure R
-
-Install R and the `jsonlite` package, then point `run_r_mood_analysis()` in `core/views.py` at your local `Rscript` executable (it currently hardcodes a Windows path — update it to match your install).
-
-### 4. Configure the OpenAI key
+### 3. Configure the OpenAI key
 
 ```bash
 set OPENAI_API_KEY=your-key-here     # Windows (cmd)
@@ -83,13 +78,13 @@ $env:OPENAI_API_KEY="your-key-here"  # Windows (PowerShell)
 export OPENAI_API_KEY=your-key-here  # macOS/Linux
 ```
 
-### 5. Run the app
+### 4. Run the app
 
 ```bash
 python manage.py runserver
 ```
 
-### 6. Build the RAG index
+### 5. Build the RAG index
 
 With the server running (so `rag_builder.py` can pull data from `/rag/export/`):
 

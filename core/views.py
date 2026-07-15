@@ -7,8 +7,6 @@ from django_ratelimit.decorators import ratelimit
 from .models import Customer, Restaurant, Meal
 from .forms import MealForm
 
-import subprocess
-import json
 import numpy as np
 import faiss
 from openai import OpenAI
@@ -36,30 +34,17 @@ def welcome(request):
 
 
 # ===============================================================
-#                   R SCRIPT MOOD ANALYSIS
+#                   MOOD ANALYSIS
 # ===============================================================
-def run_r_mood_analysis(answers):
-    try:
-        r_script_path = "mood_analysis.R"
-        r_executable = r"C:\Program Files\R\R-4.2.2\bin\Rscript.exe"
+def analyze_mood(answers):
+    yes_count = sum(1 for a in answers if a == "yes")
 
-        answers_json = json.dumps(answers)
-
-        result = subprocess.run(
-            [r_executable, r_script_path, answers_json],
-            capture_output=True,
-            text=True
-        )
-
-        mood = result.stdout.strip()
-        if mood == "":
-            mood = "Neutral"
-
-        return mood
-
-    except Exception as e:
-        print("R ERROR:", e)
+    if yes_count >= 5:
+        return "Excited"
+    elif yes_count >= 3:
         return "Neutral"
+    else:
+        return "Tired"
 
 
 # ===============================================================
@@ -377,7 +362,7 @@ def customer_quiz_result(request):
 
     customer = Customer.objects.get(email=request.session["customer_email"])
     answers = request.session.get("quiz_answers", [])
-    mood = run_r_mood_analysis(answers)
+    mood = analyze_mood(answers)
 
     # -----------------------
     # STEP 1: BASE MEALS
