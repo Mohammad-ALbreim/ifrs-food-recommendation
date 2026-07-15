@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Intelligent Food Recommendation System - Restaurant Signup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="card shadow p-4" style="width: 400px;">
+	<center>
+	 <img src="../../static/customer/img/logo.png" alt="Logo" width="25%">
+
+        <h2>Intelligent Food Recommendation System</h2>
+
+		</center>
+
+        <h3 class="text-center mb-3">Restaurant Signup</h3>
+
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Restaurant Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label>Address</label>
+                <input type="text" name="address" class="form-control">
+            </div>
+
+            <button class="btn btn-success w-100">Sign Up</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+            <a href="/restaurant/login/">Already have an account? Login</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

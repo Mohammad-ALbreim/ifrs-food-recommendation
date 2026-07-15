@@ -74,13 +74,38 @@ def restaurant_login(request):
         except Restaurant.DoesNotExist:
             return render(request, "restaurant/login.html", {"error": "Invalid email or password"})
 
-        if check_password(password, restaurant.password):
-            request.session['restaurant_id'] = restaurant.id
-            return redirect('restaurant_dashboard')
+        if not check_password(password, restaurant.password):
+            return render(request, "restaurant/login.html", {"error": "Invalid email or password"})
 
-        return render(request, "restaurant/login.html", {"error": "Invalid email or password"})
+        if restaurant.status != "approved":
+            return render(request, "restaurant/login.html", {"error": "Your account is pending admin approval."})
+
+        request.session['restaurant_id'] = restaurant.id
+        return redirect('restaurant_dashboard')
 
     return render(request, "restaurant/login.html")
+
+
+def restaurant_signup(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        if Restaurant.objects.filter(email=email).exists():
+            return render(request, "restaurant/signup.html", {"error": "Email already exists"})
+
+        Restaurant.objects.create(
+            name=request.POST.get("name"),
+            email=email,
+            password=make_password(request.POST.get("password")),
+            phone=request.POST.get("phone"),
+            address=request.POST.get("address"),
+            status="pending",
+        )
+
+        return render(request, "restaurant/signup.html", {
+            "success": "Signup received. Your account is pending admin approval before you can log in."
+        })
+
+    return render(request, "restaurant/signup.html")
 
 
 def restaurant_dashboard(request):

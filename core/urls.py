@@ -10,6 +10,7 @@ urlpatterns = [
 
     # Restaurant
     path('restaurant/login/', views.restaurant_login, name='restaurant_login'),
+    path('restaurant/signup/', views.restaurant_signup, name='restaurant_signup'),
     path('restaurant/dashboard/', views.restaurant_dashboard, name='restaurant_dashboard'),
     path('restaurant/logout/', views.restaurant_logout, name='restaurant_logout'),
     path('restaurant/meals/', views.meals_list, name='meals_list'),
