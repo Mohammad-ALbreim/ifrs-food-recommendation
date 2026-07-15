@@ -437,6 +437,9 @@ User Question:
 #                   RAG DATA EXPORT
 # ===============================================================
 def rag_data_export(request):
+    if 'restaurant_id' not in request.session:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
     restaurants = list(Restaurant.objects.values())
     meals = list(Meal.objects.values())
     customers = list(Customer.objects.values())
