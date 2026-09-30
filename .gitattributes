@@ -1,0 +1,4 @@
+# Django templates and static assets should not count as the project language
+templates/**  linguist-vendored
+static/**     linguist-vendored
+*.html        linguist-documentation
